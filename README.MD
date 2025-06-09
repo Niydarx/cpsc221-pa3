@@ -54,4 +54,40 @@ In class `HexTree`:
 
 Thanks to the hierarchical structure of the tree, and because each node stores the average colour of its rectangular region, we can **trim** portions of the tree that represent areas without fine pixel-level detail.
 
-This is achieved by the `Prune` function, which receives a **tolerance**
+This is achieved by the `Prune` function, which receives a **tolerance** parameter. This function attempts, starting near the top of a freshly built tree, to remove all of the descendants of a node if **all of the leaf nodes** below the current node have colour within tolerance of the node's average colour.
+
+This way, areas of the image with little colour variability can be replaced with a single rectangle of solid colour, while areas with fine pixel detail can remain detailed.
+
+The image quality may be reduced, but:
+- Fine details will still be visible  
+- The structure size used to store the image data will be reduced  
+
+### Example
+
+**Original image (upscaled):**  
+*Rendered image after pruning at tolerance 0.05 (upscaled):*
+
+- Tree constructed from the original image contains **107,635 nodes**, of which **57,344** are leaf nodes (one per pixel)  
+- Tree after pruning contains **30,625 nodes**, of which **18,577** are leaf nodes  
+
+### Function to Complete
+
+In class `HexTree`:
+
+- `void Prune(double tolerance)`
+
+> It may be helpful to write **two recursive helpers** for this function.
+
+---
+
+## Testing
+
+We have provided a file `main.cpp` which writes your output images to the `outputs` folder along with some diagnostic prints to the console.  
+
+**This is not a complete test of functionality!**  
+You are **highly encouraged** to add your own testing code to this file.
+
+### Compile the executable:
+
+```bash
+make

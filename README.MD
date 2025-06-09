@@ -66,8 +66,10 @@ The image quality may be reduced, but:
 
 **Original image (upscaled):**  
 ![alt text](kkkk_pruned-resized.png)
-*Rendered image after pruning at tolerance 0.05 (upscaled):*
+
+**Rendered image after pruning at tolerance 0.05 (upscaled):**
 ![alt text](kkkk-256x224-resized.png)
+
 - Tree constructed from the original image contains **107,635 nodes**, of which **57,344** are leaf nodes (one per pixel)  
 - Tree after pruning contains **30,625 nodes**, of which **18,577** are leaf nodes  
 

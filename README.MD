@@ -27,7 +27,7 @@ The region for each node is split vertically as evenly as possible into upper an
 A freshly constructed `HexTree` will have a leaf node corresponding to each individual pixel of the original image.
 
 For example, a large image will be progressively split into the regions shown in the image below:
-
+![alt text](hextree_hierarchy.png)
 > *(Each different colour group represents the children of a larger node. Note that for clarity, not all children of all nodes are shown, but nodes will continue to be split in this way as long as they are able.)*
 
 > *(In many cases—especially regions with extremely small widths and/or heights—it may be impossible to assign image regions to all upper and lower pointers, or to all left/middle/right pointers. Refer to the documentation in `hextree.h` for splitting requirements in these situations.)*
@@ -65,8 +65,9 @@ The image quality may be reduced, but:
 ### Example
 
 **Original image (upscaled):**  
+![alt text](kkkk_pruned-resized.png)
 *Rendered image after pruning at tolerance 0.05 (upscaled):*
-
+![alt text](kkkk-256x224-resized.png)
 - Tree constructed from the original image contains **107,635 nodes**, of which **57,344** are leaf nodes (one per pixel)  
 - Tree after pruning contains **30,625 nodes**, of which **18,577** are leaf nodes  
 
@@ -91,3 +92,8 @@ You are **highly encouraged** to add your own testing code to this file.
 
 ```bash
 make
+```
+You can run the given tests using the command:
+
+./pa3
+

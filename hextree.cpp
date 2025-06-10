@@ -44,9 +44,17 @@
  * that when combined, completely cover the original rectangle's image
  * region and do not overlap.
  */
-HexTree::HexTree(const PNG& imIn) {
-	// ADD YOUR IMPLEMENTATION BELOW
-
+HexTree::HexTree(const PNG &imIn)
+{
+    // ADD YOUR IMPLEMENTATION BELOW
+    // Init summedAreaTable
+    unsigned int imageWidth = imIn.width();
+    unsigned int imageHeight = imIn.height();
+    summedAreaTable.resize(imageWidth, vector<RGBSum>(imageHeight));
+    createSummedAreaTable(imageWidth, imageHeight, imIn);
+    // Init root node. Root represents the entire image
+    // Call BuildNode to recursively build out the tree
+    root = BuildNode(imIn, {0, 0}, {imageWidth, imageHeight});
 }
 
 /**
@@ -59,9 +67,10 @@ HexTree::HexTree(const PNG& imIn) {
  *
  * @param rhs The right hand side of the assignment statement.
  */
-HexTree& HexTree::operator=(const HexTree& rhs) {
-	// Replace the line below with your implementation
-	return *this;
+HexTree &HexTree::operator=(const HexTree &rhs)
+{
+    // Replace the line below with your implementation
+    return *this;
 }
 
 /**
@@ -76,9 +85,10 @@ HexTree& HexTree::operator=(const HexTree& rhs) {
  *                 Beware that maxlevel might be larger than
  *                 the length of some paths in pruned trees
  */
-PNG HexTree::Render(bool fulldepth, unsigned int maxlevel) const {
-	// Replace the line below with your implementation
-	return PNG();
+PNG HexTree::Render(bool fulldepth, unsigned int maxlevel) const
+{
+    // Replace the line below with your implementation
+    return PNG();
 }
 
 /**
@@ -94,9 +104,9 @@ PNG HexTree::Render(bool fulldepth, unsigned int maxlevel) const {
  * @param tolerance maximum RGBA distance to qualify for pruning
  * @pre this tree has not previously been pruned, nor is copied from a previously pruned tree.
  */
-void HexTree::Prune(double tolerance) {
-	// ADD YOUR IMPLEMENTATION BELOW
-
+void HexTree::Prune(double tolerance)
+{
+    // ADD YOUR IMPLEMENTATION BELOW
 }
 
 /**
@@ -109,9 +119,9 @@ void HexTree::Prune(double tolerance) {
  *
  *  You may want a recursive helper function for this one.
  */
-void HexTree::FlipHorizontal() {
-	// ADD YOUR IMPLEMENTATION BELOW
-
+void HexTree::FlipHorizontal()
+{
+    // ADD YOUR IMPLEMENTATION BELOW
 }
 
 /**
@@ -119,9 +129,9 @@ void HexTree::FlipHorizontal() {
  * current HexTree object. Complete for PA3.
  * You may want a recursive helper function for this one.
  */
-void HexTree::Clear() {
-	// ADD YOUR IMPLEMENTATION BELOW
-
+void HexTree::Clear()
+{
+    // ADD YOUR IMPLEMENTATION BELOW
 }
 
 /**
@@ -130,9 +140,9 @@ void HexTree::Clear() {
  * You may want a recursive helper function for this one.
  * @param other The HexTree to be copied.
  */
-void HexTree::Copy(const HexTree& other) {
-	// ADD YOUR IMPLEMENTATION BELOW
-
+void HexTree::Copy(const HexTree &other)
+{
+    // ADD YOUR IMPLEMENTATION BELOW
 }
 
 /**
@@ -142,12 +152,94 @@ void HexTree::Copy(const HexTree& other) {
  * @param ul upper left point of current node's rectangle.
  * @param lr lower right point of current node's rectangle.
  */
-Node* HexTree::BuildNode(const PNG& img, pair<unsigned int, unsigned int> ul, pair<unsigned int, unsigned int> lr) {
-	// Replace the line below with your implementation
-	return nullptr;
+Node *HexTree::BuildNode(const PNG &img, pair<unsigned int, unsigned int> ul, pair<unsigned int, unsigned int> lr)
+{
+    // Replace the line below with your implementation
+    return nullptr;
 }
 
 /*********************************************************/
 /*** IMPLEMENT YOUR OWN PRIVATE MEMBER FUNCTIONS BELOW ***/
 /*********************************************************/
 
+/**
+ * Returns an RGBSum with the sums the values of two given RGBSums
+ * @param a An RGBSum
+ * @param b An RGBSum
+ */
+HexTree::RGBSum HexTree::addRGBASums(RGBSum a, RGBSum b)
+{
+    HexTree::RGBSum retSum;
+    retSum.r = a.r + b.r;
+    retSum.g = a.g + b.g;
+    retSum.b = a.b + b.b;
+    return retSum;
+}
+
+/**
+ * Returns an RGBSum with the difference the values of two given RGBSums
+ * @pre a > b
+ * @param a An RGBSum
+ * @param b RGBSum to subtract from a
+ */
+HexTree::RGBSum HexTree::subtractRGBASums(RGBSum a, RGBSum b)
+{
+    HexTree::RGBSum retSum;
+    retSum.r = a.r - b.r;
+    retSum.g = a.g - b.g;
+    retSum.b = a.b - b.b;
+    return retSum;
+}
+
+// Returns an RGBSum given an RGBAPixel
+HexTree::RGBSum HexTree::pixelToSum(const RGBAPixel p)
+{
+    HexTree::RGBSum retSum;
+    retSum.r = p.r;
+    retSum.g = p.g;
+    retSum.b = p.b;
+    return retSum;
+}
+
+void HexTree::createSummedAreaTable(unsigned int imageWidth, unsigned int imageHeight, const PNG &imIn)
+{
+    for (int x = 0; x < imageWidth; x++)
+    {
+        for (int y = 0; x < imageHeight; x++)
+        {
+            RGBAPixel *curPixel = imIn.getPixel(x, y);
+            RGBSum curPixelSum = pixelToSum(*curPixel);
+            if (x > 0 && y > 0)
+            {
+                RGBSum columnArea = summedAreaTable[x][y - 1];
+                RGBSum rowArea = summedAreaTable[x - 1][y];
+                RGBSum diagArea = summedAreaTable[x - 1][y - 1];
+                RGBSum curArea = subtractRGBASums(addRGBASums(addRGBASums(curPixelSum, rowArea), columnArea), diagArea);
+                summedAreaTable[x][y] = curArea;
+            }
+            else if (x > 0)
+            {
+                RGBSum rowArea = summedAreaTable[x - 1][y];
+                summedAreaTable[x][y] = addRGBASums(curPixelSum, rowArea);
+            }
+            else if (y > 0)
+            {
+                RGBSum columnArea = summedAreaTable[x][y - 1];
+                summedAreaTable[x][y] = addRGBASums(curPixelSum, columnArea);
+            }
+            else
+            {
+                summedAreaTable[x][y] = curPixelSum;
+            }
+        }
+    }
+}
+
+RGBAPixel HexTree::calculateAverage(pair<unsigned int, unsigned int> ul, pair<unsigned int, unsigned int> lr)
+{
+    unsigned int x1 = ul.first;
+    unsigned int x2 = lr.first;
+    unsigned int y1 = ul.second;
+    unsigned int y2 = lr.second;
+    addRGBASums(subtractRGBASums(subtractRGBASums(summedAreaTable[x2][y2], summedAreaTable[x1 - 1][y2]), summedAreaTable[x2][y1 - 1]), summedAreaTable[x1 - 1][y1 - 1]);
+}

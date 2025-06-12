@@ -42,3 +42,4 @@ RGBSum pixelToSum(const RGBAPixel p);
 void createSummedAreaTable(unsigned int imageWidth, unsigned int imageHeight, const PNG & imIn);
 
 RGBAPixel calculateAverage(pair<unsigned int, unsigned int> ul, pair<unsigned int, unsigned int> lr);
+

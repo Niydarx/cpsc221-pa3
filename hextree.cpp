@@ -54,7 +54,8 @@ HexTree::HexTree(const PNG &imIn)
     createSummedAreaTable(imageWidth, imageHeight, imIn);
     // Init root node. Root represents the entire image
     // Call BuildNode to recursively build out the tree
-    root = BuildNode(imIn, {0, 0}, {imageWidth, imageHeight});
+    root = BuildNode(imIn, {0, 0}, {imageWidth - 1, imageHeight - 1});
+    //
 }
 
 /**
@@ -155,7 +156,99 @@ void HexTree::Copy(const HexTree &other)
 Node *HexTree::BuildNode(const PNG &img, pair<unsigned int, unsigned int> ul, pair<unsigned int, unsigned int> lr)
 {
     // Replace the line below with your implementation
-    return nullptr;
+    unsigned int nodeWidth = (lr.first - ul.first) + 1;
+    unsigned int nodeHeight = (lr.second - ul.second) + 1;
+    if (ul == lr)
+    {
+        Node *baseNode = new Node(ul, lr, calculateAverage(ul, lr));
+        // cout << "leaf: " << ul.first << "," << ul.second << endl;
+        return baseNode;
+    }
+    else
+    {
+        Node *returnNode = new Node(ul, lr, calculateAverage(ul, lr));
+        unsigned int leftW = nodeWidth / 3;   // integer division
+        unsigned int midW = nodeWidth / 3;    // integer division
+        unsigned int rightW = nodeWidth / 3;  // integer division
+        unsigned int upperH = nodeHeight / 2; // integer division
+        unsigned int lowerH = nodeHeight / 2; // integer division
+        bool skipSides = (nodeWidth == 1);    // node is a single col
+        bool skipMid = (nodeWidth == 2);      // node has width == 2
+        bool skipBottom = (nodeHeight == 1);  // node is a single row
+
+        Node *A = nullptr;
+        Node *B = nullptr;
+        Node *C = nullptr;
+        Node *D = nullptr;
+        Node *E = nullptr;
+        Node *F = nullptr;
+
+        pair<unsigned int, unsigned int> subUpperLeft;
+        pair<unsigned int, unsigned int> subLowerRight;
+
+        // distribute extra pixels
+        if (nodeHeight % 2 == 1)
+        {
+            upperH++;
+        }
+        if (nodeWidth % 3 == 1)
+        {
+            midW++;
+        }
+        else if (nodeWidth % 3 == 2)
+        {
+            leftW++;
+            rightW++;
+        }
+        if (!skipSides)
+        {
+            // Node A
+            subUpperLeft = {ul.first, ul.second};
+            subLowerRight = {max(ul.first + leftW - 1, ul.first), max(ul.second + upperH - 1, ul.second)};
+            A = BuildNode(img, subUpperLeft, subLowerRight);
+            // Node C
+            subUpperLeft = {ul.first + leftW + midW, ul.second};
+            subLowerRight = {max(ul.first + leftW + midW + rightW - 1, ul.first + leftW + midW), max(ul.second + upperH - 1, ul.second)};
+            C = BuildNode(img, subUpperLeft, subLowerRight);
+        }
+
+        if (!skipMid)
+        {
+            // Node B
+            subUpperLeft = {ul.first + leftW, ul.second};
+            subLowerRight = {max(ul.first + leftW + midW - 1, ul.first + leftW), max(ul.second + upperH - 1, ul.second)};
+            B = BuildNode(img, subUpperLeft, subLowerRight);
+        }
+
+        if (!skipBottom)
+        {
+            if (!skipSides)
+            {
+                // Node D
+                subUpperLeft = {ul.first, ul.second + upperH};
+                subLowerRight = {max(ul.first + leftW - 1, ul.first), max(lr.second, ul.second + upperH)};
+                D = BuildNode(img, subUpperLeft, subLowerRight);
+                // Node F
+                subUpperLeft = {ul.first + leftW + midW, ul.second + upperH};
+                subLowerRight = {max(ul.first + leftW + midW + rightW - 1, ul.first + leftW + midW), max(lr.second, ul.second + upperH)};
+                F = BuildNode(img, subUpperLeft, subLowerRight);
+            }
+            if (!skipMid)
+            {
+                // Node E
+                subUpperLeft = {ul.first + leftW, ul.second + upperH};
+                subLowerRight = {max(ul.first + leftW + midW - 1, ul.first + leftW), max(lr.second, ul.second + upperH)};
+                E = BuildNode(img, subUpperLeft, subLowerRight);
+            }
+        }
+        returnNode->A = A; // upper-left child
+        returnNode->B = B; // upper-middle child
+        returnNode->C = C; // upper-right child
+        returnNode->D = D; // lower-left child
+        returnNode->E = E; // lower-middle child
+        returnNode->F = F; // lower-right child
+        return returnNode;
+    }
 }
 
 /*********************************************************/
@@ -203,9 +296,9 @@ HexTree::RGBSum HexTree::pixelToSum(const RGBAPixel p)
 
 void HexTree::createSummedAreaTable(unsigned int imageWidth, unsigned int imageHeight, const PNG &imIn)
 {
-    for (int x = 0; x < imageWidth; x++)
+    for (unsigned int x = 0; x < imageWidth; x++)
     {
-        for (int y = 0; x < imageHeight; x++)
+        for (unsigned int y = 0; y < imageHeight; y++)
         {
             RGBAPixel *curPixel = imIn.getPixel(x, y);
             RGBSum curPixelSum = pixelToSum(*curPixel);
@@ -220,12 +313,12 @@ void HexTree::createSummedAreaTable(unsigned int imageWidth, unsigned int imageH
             else if (x > 0)
             {
                 RGBSum rowArea = summedAreaTable[x - 1][y];
-                summedAreaTable[x][y] = addRGBASums(curPixelSum, rowArea);
+                summedAreaTable[x][0] = addRGBASums(curPixelSum, rowArea);
             }
             else if (y > 0)
             {
                 RGBSum columnArea = summedAreaTable[x][y - 1];
-                summedAreaTable[x][y] = addRGBASums(curPixelSum, columnArea);
+                summedAreaTable[0][y] = addRGBASums(curPixelSum, columnArea);
             }
             else
             {
@@ -241,5 +334,33 @@ RGBAPixel HexTree::calculateAverage(pair<unsigned int, unsigned int> ul, pair<un
     unsigned int x2 = lr.first;
     unsigned int y1 = ul.second;
     unsigned int y2 = lr.second;
-    addRGBASums(subtractRGBASums(subtractRGBASums(summedAreaTable[x2][y2], summedAreaTable[x1 - 1][y2]), summedAreaTable[x2][y1 - 1]), summedAreaTable[x1 - 1][y1 - 1]);
+
+    RGBSum total = summedAreaTable[x2][y2];
+    if (x1 > 0)
+    {
+        total = subtractRGBASums(total, summedAreaTable[x1 - 1][y2]);
+    }
+    if (y1 > 0)
+    {
+        total = subtractRGBASums(total, summedAreaTable[x2][y1 - 1]);
+    }
+    if (x1 > 0 && y1 > 0)
+    {
+        total = addRGBASums(total, summedAreaTable[x1 - 1][y1 - 1]);
+    }
+    int numPixels;
+
+    if (ul == lr)
+    {
+        numPixels = 1;
+    }
+    else
+    {
+        numPixels = (x2 - x1 + 1) * (y2 - y1 + 1);
+    }
+
+    RGBAPixel returnPixel(returnPixel.r = total.r / numPixels,
+                          returnPixel.g = total.g / numPixels,
+                          returnPixel.b = total.b / numPixels);
+    return returnPixel;
 }

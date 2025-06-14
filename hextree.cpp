@@ -46,17 +46,17 @@
  */
 HexTree::HexTree(const PNG &imIn)
 {
-    // ADD YOUR IMPLEMENTATION BELOW
-    // Init summedAreaTable
     _imageWidth = imIn.width();
     _imageHeight = imIn.height();
-    // summedAreaTable.resize(imageWidth, vector<RGBSum>(imageHeight));
-    // createSummedAreaTable(imageWidth, imageHeight, imIn);
+    /**
+     * Using SummedAreaTable
+     * summedAreaTable.resize(imageWidth, vector<RGBSum>(imageHeight));
+     * createSummedAreaTable(imageWidth, imageHeight, imIn);
+     */
+
     // Init root node. Root represents the entire image
     // Call BuildNode to recursively build out the tree
     root = BuildNode(imIn, {0, 0}, {_imageWidth - 1, _imageHeight - 1});
-
-    // cout << root->avg << endl;
 }
 
 /**
@@ -89,7 +89,6 @@ HexTree &HexTree::operator=(const HexTree &rhs)
  */
 PNG HexTree::Render(bool fulldepth, unsigned int maxlevel) const
 {
-    // Replace the line below with your implementation
     PNG returnPNG(_imageWidth, _imageHeight);
     Render(returnPNG, root, fulldepth, maxlevel);
     return returnPNG;
@@ -158,45 +157,45 @@ void HexTree::Copy(const HexTree &other)
  */
 Node *HexTree::BuildNode(const PNG &img, pair<unsigned int, unsigned int> ul, pair<unsigned int, unsigned int> lr)
 {
-    // Replace the line below with your implementation
     unsigned int nodeWidth = (lr.first - ul.first) + 1;
     unsigned int nodeHeight = (lr.second - ul.second) + 1;
     if (ul == lr)
     {
-        // RGBSum curPixelSum = pixelToSum(*img.getPixel(ul.first, ul.second));
-        // int x = ul.first;
-        // int y = ul.second;
-        // if (x > 0 && y > 0)
-        // {
-        //     RGBSum columnArea = summedAreaTable[x][y - 1];
-        //     RGBSum rowArea = summedAreaTable[x - 1][y];
-        //     RGBSum diagArea = summedAreaTable[x - 1][y - 1];
-        //     RGBSum curArea = subtractRGBASums(addRGBASums(addRGBASums(curPixelSum, rowArea), columnArea), diagArea);
-        //     summedAreaTable[x][y] = curArea;
-        // }
-        // else if (x > 0)
-        // {
-        //     RGBSum rowArea = summedAreaTable[x - 1][y];
-        //     summedAreaTable[x][0] = addRGBASums(curPixelSum, rowArea);
-        // }
-        // else if (y > 0)
-        // {
-        //     RGBSum columnArea = summedAreaTable[x][y - 1];
-        //     summedAreaTable[0][y] = addRGBASums(curPixelSum, columnArea);
-        // }
-        // else
-        // {
-        //     summedAreaTable[x][y] = curPixelSum;
-        // }
-        // summedAreaTable[ul.first][ul.second] = pixelToSum(*img.getPixel(ul.first, ul.second));
+        /**
+         * SummedAreaTable implementation
+          RGBSum curPixelSum = pixelToSum(*img.getPixel(ul.first, ul.second));
+          int x = ul.first;
+          int y = ul.second;
+          if (x > 0 && y > 0)
+          {
+              RGBSum columnArea = summedAreaTable[x][y - 1];
+              RGBSum rowArea = summedAreaTable[x - 1][y];
+              RGBSum diagArea = summedAreaTable[x - 1][y - 1];
+              RGBSum curArea = subtractRGBASums(addRGBASums(addRGBASums(curPixelSum, rowArea), columnArea), diagArea);
+              summedAreaTable[x][y] = curArea;
+          }
+          else if (x > 0)
+          {
+              RGBSum rowArea = summedAreaTable[x - 1][y];
+              summedAreaTable[x][0] = addRGBASums(curPixelSum, rowArea);
+          }
+          else if (y > 0)
+          {
+              RGBSum columnArea = summedAreaTable[x][y - 1];
+              summedAreaTable[0][y] = addRGBASums(curPixelSum, columnArea);
+          }
+          else
+          {
+              summedAreaTable[x][y] = curPixelSum;
+          }
+          summedAreaTable[ul.first][ul.second] = pixelToSum(*img.getPixel(ul.first, ul.second));
+         */
+
         Node *baseNode = new Node(ul, lr, *img.getPixel(ul.first, ul.second));
-        // cout << "leaf: " << ul.first << "," << ul.second << endl;
         return baseNode;
     }
     else
     {
-        // Node *returnNode = new Node(ul, lr, calculateAverage(ul, lr));
-
         unsigned int leftW = nodeWidth / 3;   // integer division
         unsigned int midW = nodeWidth / 3;    // integer division
         unsigned int rightW = nodeWidth / 3;  // integer division
@@ -326,7 +325,8 @@ HexTree::RGBSum HexTree::pixelToSum(const RGBAPixel p)
     return retSum;
 }
 
-/*
+/**
+ * Summed Area Table implementation.
 void HexTree::createSummedAreaTable(unsigned int imageWidth, unsigned int imageHeight, const PNG &imIn)
 {
     for (unsigned int x = 0; x < imageWidth; x++)
@@ -471,15 +471,16 @@ void HexTree::Render(PNG &img, const Node *nd, bool fulldepth, unsigned int maxl
         }
         else
         {
-            if (fulldepth) {
-                maxlevel++;
+            if (!fulldepth)
+            {
+                maxlevel--;
             }
-            Render(img, nd->A, fulldepth, (maxlevel - 1));
-            Render(img, nd->B, fulldepth, (maxlevel - 1));
-            Render(img, nd->C, fulldepth, (maxlevel - 1));
-            Render(img, nd->D, fulldepth, (maxlevel - 1));
-            Render(img, nd->E, fulldepth, (maxlevel - 1));
-            Render(img, nd->F, fulldepth, (maxlevel - 1));
+            Render(img, nd->A, fulldepth, maxlevel);
+            Render(img, nd->B, fulldepth, maxlevel);
+            Render(img, nd->C, fulldepth, maxlevel);
+            Render(img, nd->D, fulldepth, maxlevel);
+            Render(img, nd->E, fulldepth, maxlevel);
+            Render(img, nd->F, fulldepth, maxlevel);
         }
     }
 }

@@ -13,10 +13,17 @@
 unsigned int _imageWidth;
 unsigned int _imageHeight;
 
-// These functions declarations will be flagged by VSCode for not being "member functions", but
-// they in fact are. The const keyword is necessary here.
+/**
+ * These function declarations will be flagged by VSCode for not being "member functions", but
+ * they in fact are. The const keyword is necessary here. This is due to the way this file is included in
+ * @file hextree.h
+ */
+
 void Render(PNG &img, const Node *nd, bool fulldepth, unsigned int maxlevel) const;
 bool isLeafNode(const Node *nd) const;
+
+// Recursive helper for Clear()
+void Clear(Node *nd);
 
 struct RGBSum
 {

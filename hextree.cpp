@@ -48,13 +48,13 @@ HexTree::HexTree(const PNG &imIn)
 {
     // ADD YOUR IMPLEMENTATION BELOW
     // Init summedAreaTable
-    unsigned int imageWidth = imIn.width();
-    unsigned int imageHeight = imIn.height();
-    summedAreaTable.resize(imageWidth, vector<RGBSum>(imageHeight));
-    createSummedAreaTable(imageWidth, imageHeight, imIn);
+    _imageWidth = imIn.width();
+    _imageHeight = imIn.height();
+    // summedAreaTable.resize(imageWidth, vector<RGBSum>(imageHeight));
+    // createSummedAreaTable(imageWidth, imageHeight, imIn);
     // Init root node. Root represents the entire image
     // Call BuildNode to recursively build out the tree
-    root = BuildNode(imIn, {0, 0}, {imageWidth - 1, imageHeight - 1});
+    root = BuildNode(imIn, {0, 0}, {_imageWidth - 1, _imageHeight - 1});
 
     // cout << root->avg << endl;
 }
@@ -90,7 +90,9 @@ HexTree &HexTree::operator=(const HexTree &rhs)
 PNG HexTree::Render(bool fulldepth, unsigned int maxlevel) const
 {
     // Replace the line below with your implementation
-    return PNG();
+    PNG returnPNG(_imageWidth, _imageHeight);
+    Render(returnPNG, root, fulldepth, maxlevel);
+    return returnPNG;
 }
 
 /**
@@ -401,14 +403,12 @@ RGBAPixel HexTree::averageFromChildren(Node *A, Node *B, Node *C, Node *D, Node 
     int totalR = 0;
     int totalG = 0;
     int totalB = 0;
-    int nodeCount = 0;
     if (A != nullptr)
     {
         int areaA = (A->lowRight.first - A->upLeft.first + 1) * (A->lowRight.second - A->upLeft.second + 1);
         totalR += A->avg.r * areaA;
         totalG += A->avg.g * areaA;
         totalB += A->avg.b * areaA;
-        nodeCount++;
     }
     if (B != nullptr)
     {
@@ -416,7 +416,6 @@ RGBAPixel HexTree::averageFromChildren(Node *A, Node *B, Node *C, Node *D, Node 
         totalR += B->avg.r * areaB;
         totalG += B->avg.g * areaB;
         totalB += B->avg.b * areaB;
-        nodeCount++;
     }
     if (C != nullptr)
     {
@@ -424,7 +423,6 @@ RGBAPixel HexTree::averageFromChildren(Node *A, Node *B, Node *C, Node *D, Node 
         totalR += C->avg.r * areaC;
         totalG += C->avg.g * areaC;
         totalB += C->avg.b * areaC;
-        nodeCount++;
     }
     if (D != nullptr)
     {
@@ -432,7 +430,6 @@ RGBAPixel HexTree::averageFromChildren(Node *A, Node *B, Node *C, Node *D, Node 
         totalR += D->avg.r * areaD;
         totalG += D->avg.g * areaD;
         totalB += D->avg.b * areaD;
-        nodeCount++;
     }
     if (E != nullptr)
     {
@@ -440,7 +437,6 @@ RGBAPixel HexTree::averageFromChildren(Node *A, Node *B, Node *C, Node *D, Node 
         totalR += E->avg.r * areaE;
         totalG += E->avg.g * areaE;
         totalB += E->avg.b * areaE;
-        nodeCount++;
     }
     if (F != nullptr)
     {
@@ -448,7 +444,47 @@ RGBAPixel HexTree::averageFromChildren(Node *A, Node *B, Node *C, Node *D, Node 
         totalR += F->avg.r * areaF;
         totalG += F->avg.g * areaF;
         totalB += F->avg.b * areaF;
-        nodeCount++;
     }
     return RGBAPixel(totalR / numPixels, totalG / numPixels, totalB / numPixels);
+}
+
+void HexTree::Render(PNG &img, const Node *nd, bool fulldepth, unsigned int maxlevel) const
+{
+    if (nd != nullptr)
+    {
+        if ((!fulldepth && maxlevel == 0) || isLeafNode(nd))
+        {
+            pair<unsigned int, unsigned int> ul = nd->upLeft;
+            pair<unsigned int, unsigned int> lr = nd->lowRight;
+            unsigned int nodeWidth = (lr.first - ul.first) + 1;
+            unsigned int nodeHeight = (lr.second - ul.second) + 1;
+            unsigned int x = ul.first;
+            unsigned int y = ul.second;
+            for (unsigned int plotX = 0; plotX < nodeWidth; plotX++)
+            {
+                for (unsigned int plotY = 0; plotY < nodeHeight; plotY++)
+                {
+                    RGBAPixel *curOutPixel = img.getPixel(x + plotX, y + plotY);
+                    *curOutPixel = nd->avg;
+                }
+            }
+        }
+        else
+        {
+            if (fulldepth) {
+                maxlevel++;
+            }
+            Render(img, nd->A, fulldepth, (maxlevel - 1));
+            Render(img, nd->B, fulldepth, (maxlevel - 1));
+            Render(img, nd->C, fulldepth, (maxlevel - 1));
+            Render(img, nd->D, fulldepth, (maxlevel - 1));
+            Render(img, nd->E, fulldepth, (maxlevel - 1));
+            Render(img, nd->F, fulldepth, (maxlevel - 1));
+        }
+    }
+}
+
+bool HexTree::isLeafNode(const Node *nd) const
+{
+    return (nd->A == nullptr && nd->B == nullptr && nd->C == nullptr && nd->D == nullptr && nd->E == nullptr && nd->F == nullptr);
 }

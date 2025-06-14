@@ -17,7 +17,7 @@ struct RGBSum
 
 /**
  * summedAreaTable is a 2D vector of RGBSums
- * Contains the cumalative r, g, b values of any pixel from [x][y] to origin 
+ * Contains the cumalative r, g, b values of any pixel from [x][y] to origin
  */
 vector<vector<RGBSum>> summedAreaTable;
 
@@ -39,7 +39,8 @@ RGBSum subtractRGBASums(RGBSum a, RGBSum b);
 // Returns an RGBSum given an RGBAPixel
 RGBSum pixelToSum(const RGBAPixel p);
 
-void createSummedAreaTable(unsigned int imageWidth, unsigned int imageHeight, const PNG & imIn);
+void createSummedAreaTable(unsigned int imageWidth, unsigned int imageHeight, const PNG &imIn);
 
 RGBAPixel calculateAverage(pair<unsigned int, unsigned int> ul, pair<unsigned int, unsigned int> lr);
 
+RGBAPixel averageFromChildren(Node *A, Node *B, Node *C, Node *D, Node *E, Node *F, pair<unsigned int, unsigned int> ul, pair<unsigned int, unsigned int> lr);

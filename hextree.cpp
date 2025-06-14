@@ -55,7 +55,8 @@ HexTree::HexTree(const PNG &imIn)
     // Init root node. Root represents the entire image
     // Call BuildNode to recursively build out the tree
     root = BuildNode(imIn, {0, 0}, {imageWidth - 1, imageHeight - 1});
-    //
+
+    // cout << root->avg << endl;
 }
 
 /**
@@ -160,13 +161,40 @@ Node *HexTree::BuildNode(const PNG &img, pair<unsigned int, unsigned int> ul, pa
     unsigned int nodeHeight = (lr.second - ul.second) + 1;
     if (ul == lr)
     {
-        Node *baseNode = new Node(ul, lr, calculateAverage(ul, lr));
+        // RGBSum curPixelSum = pixelToSum(*img.getPixel(ul.first, ul.second));
+        // int x = ul.first;
+        // int y = ul.second;
+        // if (x > 0 && y > 0)
+        // {
+        //     RGBSum columnArea = summedAreaTable[x][y - 1];
+        //     RGBSum rowArea = summedAreaTable[x - 1][y];
+        //     RGBSum diagArea = summedAreaTable[x - 1][y - 1];
+        //     RGBSum curArea = subtractRGBASums(addRGBASums(addRGBASums(curPixelSum, rowArea), columnArea), diagArea);
+        //     summedAreaTable[x][y] = curArea;
+        // }
+        // else if (x > 0)
+        // {
+        //     RGBSum rowArea = summedAreaTable[x - 1][y];
+        //     summedAreaTable[x][0] = addRGBASums(curPixelSum, rowArea);
+        // }
+        // else if (y > 0)
+        // {
+        //     RGBSum columnArea = summedAreaTable[x][y - 1];
+        //     summedAreaTable[0][y] = addRGBASums(curPixelSum, columnArea);
+        // }
+        // else
+        // {
+        //     summedAreaTable[x][y] = curPixelSum;
+        // }
+        // summedAreaTable[ul.first][ul.second] = pixelToSum(*img.getPixel(ul.first, ul.second));
+        Node *baseNode = new Node(ul, lr, *img.getPixel(ul.first, ul.second));
         // cout << "leaf: " << ul.first << "," << ul.second << endl;
         return baseNode;
     }
     else
     {
-        Node *returnNode = new Node(ul, lr, calculateAverage(ul, lr));
+        // Node *returnNode = new Node(ul, lr, calculateAverage(ul, lr));
+
         unsigned int leftW = nodeWidth / 3;   // integer division
         unsigned int midW = nodeWidth / 3;    // integer division
         unsigned int rightW = nodeWidth / 3;  // integer division
@@ -241,6 +269,8 @@ Node *HexTree::BuildNode(const PNG &img, pair<unsigned int, unsigned int> ul, pa
                 E = BuildNode(img, subUpperLeft, subLowerRight);
             }
         }
+        // Node *returnNode = new Node(ul, lr, calculateAverage(ul, lr));
+        Node *returnNode = new Node(ul, lr, averageFromChildren(A, B, C, D, E, F, ul, lr));
         returnNode->A = A; // upper-left child
         returnNode->B = B; // upper-middle child
         returnNode->C = C; // upper-right child
@@ -294,6 +324,7 @@ HexTree::RGBSum HexTree::pixelToSum(const RGBAPixel p)
     return retSum;
 }
 
+/*
 void HexTree::createSummedAreaTable(unsigned int imageWidth, unsigned int imageHeight, const PNG &imIn)
 {
     for (unsigned int x = 0; x < imageWidth; x++)
@@ -328,8 +359,10 @@ void HexTree::createSummedAreaTable(unsigned int imageWidth, unsigned int imageH
     }
 }
 
+
 RGBAPixel HexTree::calculateAverage(pair<unsigned int, unsigned int> ul, pair<unsigned int, unsigned int> lr)
 {
+
     unsigned int x1 = ul.first;
     unsigned int x2 = lr.first;
     unsigned int y1 = ul.second;
@@ -348,19 +381,74 @@ RGBAPixel HexTree::calculateAverage(pair<unsigned int, unsigned int> ul, pair<un
     {
         total = addRGBASums(total, summedAreaTable[x1 - 1][y1 - 1]);
     }
-    int numPixels;
+    int numPixels = (x2 - x1 + 1) * (y2 - y1 + 1);
 
-    if (ul == lr)
-    {
-        numPixels = 1;
-    }
-    else
-    {
-        numPixels = (x2 - x1 + 1) * (y2 - y1 + 1);
-    }
+    RGBAPixel returnPixel(returnPixel.r = total.r / (long)numPixels,
+                          returnPixel.g = total.g / (long)numPixels,
+                          returnPixel.b = total.b / (long)numPixels);
 
-    RGBAPixel returnPixel(returnPixel.r = total.r / numPixels,
-                          returnPixel.g = total.g / numPixels,
-                          returnPixel.b = total.b / numPixels);
     return returnPixel;
+}
+*/
+
+RGBAPixel HexTree::averageFromChildren(Node *A, Node *B, Node *C, Node *D, Node *E, Node *F, pair<unsigned int, unsigned int> ul, pair<unsigned int, unsigned int> lr)
+{
+    unsigned int x1 = ul.first;
+    unsigned int x2 = lr.first;
+    unsigned int y1 = ul.second;
+    unsigned int y2 = lr.second;
+    int numPixels = (x2 - x1 + 1) * (y2 - y1 + 1);
+    int totalR = 0;
+    int totalG = 0;
+    int totalB = 0;
+    int nodeCount = 0;
+    if (A != nullptr)
+    {
+        int areaA = (A->lowRight.first - A->upLeft.first + 1) * (A->lowRight.second - A->upLeft.second + 1);
+        totalR += A->avg.r * areaA;
+        totalG += A->avg.g * areaA;
+        totalB += A->avg.b * areaA;
+        nodeCount++;
+    }
+    if (B != nullptr)
+    {
+        int areaB = (B->lowRight.first - B->upLeft.first + 1) * (B->lowRight.second - B->upLeft.second + 1);
+        totalR += B->avg.r * areaB;
+        totalG += B->avg.g * areaB;
+        totalB += B->avg.b * areaB;
+        nodeCount++;
+    }
+    if (C != nullptr)
+    {
+        int areaC = (C->lowRight.first - C->upLeft.first + 1) * (C->lowRight.second - C->upLeft.second + 1);
+        totalR += C->avg.r * areaC;
+        totalG += C->avg.g * areaC;
+        totalB += C->avg.b * areaC;
+        nodeCount++;
+    }
+    if (D != nullptr)
+    {
+        int areaD = (D->lowRight.first - D->upLeft.first + 1) * (D->lowRight.second - D->upLeft.second + 1);
+        totalR += D->avg.r * areaD;
+        totalG += D->avg.g * areaD;
+        totalB += D->avg.b * areaD;
+        nodeCount++;
+    }
+    if (E != nullptr)
+    {
+        int areaE = (E->lowRight.first - E->upLeft.first + 1) * (E->lowRight.second - E->upLeft.second + 1);
+        totalR += E->avg.r * areaE;
+        totalG += E->avg.g * areaE;
+        totalB += E->avg.b * areaE;
+        nodeCount++;
+    }
+    if (F != nullptr)
+    {
+        int areaF = (F->lowRight.first - F->upLeft.first + 1) * (F->lowRight.second - F->upLeft.second + 1);
+        totalR += F->avg.r * areaF;
+        totalG += F->avg.g * areaF;
+        totalB += F->avg.b * areaF;
+        nodeCount++;
+    }
+    return RGBAPixel(totalR / numPixels, totalG / numPixels, totalB / numPixels);
 }

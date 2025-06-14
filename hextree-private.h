@@ -10,6 +10,13 @@
  */
 
 // begin your declarations below
+unsigned int _imageWidth;
+unsigned int _imageHeight;
+
+void Render(PNG &img, const Node *nd, bool fulldepth, unsigned int maxlevel) const;
+
+bool isLeafNode(const Node *nd) const;
+
 struct RGBSum
 {
     long r, g, b;
@@ -44,3 +51,4 @@ void createSummedAreaTable(unsigned int imageWidth, unsigned int imageHeight, co
 RGBAPixel calculateAverage(pair<unsigned int, unsigned int> ul, pair<unsigned int, unsigned int> lr);
 
 RGBAPixel averageFromChildren(Node *A, Node *B, Node *C, Node *D, Node *E, Node *F, pair<unsigned int, unsigned int> ul, pair<unsigned int, unsigned int> lr);
+

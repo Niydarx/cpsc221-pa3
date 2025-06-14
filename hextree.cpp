@@ -134,7 +134,7 @@ void HexTree::FlipHorizontal()
  */
 void HexTree::Clear()
 {
-    // ADD YOUR IMPLEMENTATION BELOW
+    Clear(root);
 }
 
 /**
@@ -481,6 +481,96 @@ void HexTree::Render(PNG &img, const Node *nd, bool fulldepth, unsigned int maxl
             Render(img, nd->D, fulldepth, maxlevel);
             Render(img, nd->E, fulldepth, maxlevel);
             Render(img, nd->F, fulldepth, maxlevel);
+        }
+    }
+}
+
+void HexTree::Clear(Node *nd)
+{
+    if (nd != nullptr)
+    {
+        if (isLeafNode(nd))
+        {
+            if (nd == root)
+            {
+                delete root;
+                root = nullptr;
+            }
+            else
+            {
+                delete nd;
+            }
+            nd = nullptr;
+        }
+        else
+        {
+            // Node A
+            if (nd->A != nullptr && isLeafNode(nd->A))
+            {
+                delete nd->A;
+                nd->A = nullptr;
+            }
+            else
+            {
+                Clear(nd->A);
+            }
+
+            // Node B
+            if (nd->B != nullptr && isLeafNode(nd->B))
+            {
+                delete nd->B;
+                nd->B = nullptr;
+            }
+            else
+            {
+                Clear(nd->B);
+            }
+
+            // Node C
+            if (nd->C != nullptr && isLeafNode(nd->C))
+            {
+                delete nd->C;
+                nd->C = nullptr;
+            }
+            else
+            {
+                Clear(nd->C);
+            }
+
+            // Node D
+            if (nd->D != nullptr && isLeafNode(nd->D))
+            {
+                delete nd->D;
+                nd->D = nullptr;
+            }
+            else
+            {
+                Clear(nd->D);
+            }
+
+            // Node E
+            if (nd->E != nullptr && isLeafNode(nd->E))
+            {
+                delete nd->E;
+                nd->E = nullptr;
+            }
+            else
+            {
+                Clear(nd->E);
+            }
+
+            // Node F
+            if (nd->F != nullptr && isLeafNode(nd->F))
+            {
+                delete nd->F;
+                nd->F = nullptr;
+            }
+            else
+            {
+                Clear(nd->F);
+            }
+            delete nd;
+            nd = nullptr;
         }
     }
 }

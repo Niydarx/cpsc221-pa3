@@ -10,6 +10,7 @@
  */
 
 // begin your declarations below
+
 unsigned int _imageWidth;
 unsigned int _imageHeight;
 

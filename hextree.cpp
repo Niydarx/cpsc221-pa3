@@ -636,6 +636,7 @@ int getPrunableSubtrees(Node* nd, double tolerance, std::stack<Node*>* st) const
     //base case: nd is a leaf, so by default is prunable
 
     if (isLeafNode(nd)) {
+        st->push(nd);
         return 1;
     }
 
@@ -668,13 +669,14 @@ int getPrunableSubtrees(Node* nd, double tolerance, std::stack<Node*>* st) const
         childPrunable = getPrunableSubtrees(nd->A, tolerance, st);
         if (childPrunable >= 1) {
             numChild++;
+
         } else if(childPrunable == 0) {
             prunable = -1;
             break;
         } //else temp is 0 so numChild doesnt change and prunable doesnt change
     }
 
-    //if prunable is positive, the new highest prunable subtree is nd
+    //if prunable is positive, calculate the tolerance within the current png block
     if (prunable >= 1) {
         for (int temp = numChild; temp > 0; temp--) {
             st->pop();
@@ -682,7 +684,7 @@ int getPrunableSubtrees(Node* nd, double tolerance, std::stack<Node*>* st) const
         st->push(nd);
     } 
 
-    //otherwise, the highest prunable subtrees are lower than this nd, and therefore are already in the stack
+    //if prunable is negative, the block is also not going to be prunable
 
     return prunable;
 }

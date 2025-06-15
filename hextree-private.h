@@ -10,6 +10,7 @@
  */
 
 // begin your declarations below
+#include <stack>
 unsigned int _imageWidth;
 unsigned int _imageHeight;
 
@@ -59,3 +60,12 @@ RGBSum pixelToSum(const RGBAPixel p);
 // RGBAPixel calculateAverage(pair<unsigned int, unsigned int> ul, pair<unsigned int, unsigned int> lr);
 
 RGBAPixel averageFromChildren(Node *A, Node *B, Node *C, Node *D, Node *E, Node *F, pair<unsigned int, unsigned int> ul, pair<unsigned int, unsigned int> lr);
+
+/**
+ * Recursive helper for Prune. Pushes highest prunable subtrees of nd to the stack                                                                               
+ * @pre An unpruned subtree
+ * @param nd the root node of a subtree
+ * @param tolerance the tolerance for whether or not to prune the subtree.
+ * @return -1 if subtree doesn't exist, 0 if subtree is not prunable, and 1 if subtree is prunable                                                        e
+ */
+int getPrunableSubtrees(Node* nd, double tolerance, std::stack<Node*>* st) const;

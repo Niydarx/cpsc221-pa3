@@ -8,6 +8,7 @@
 
 #include "hextree.h"
 #include <queue>
+#include <stack>
 #include "hextree-private.h"
 
 

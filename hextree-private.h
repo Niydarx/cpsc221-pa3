@@ -10,7 +10,6 @@
  */
 
 // begin your declarations below
-#include <stack>
 unsigned int _imageWidth;
 unsigned int _imageHeight;
 

@@ -7,6 +7,10 @@
  */
 
 #include "hextree.h"
+#include <queue>
+#include "hextree-private.h"
+
+
 
 /**
  * Constructor that builds a HexTree out of the given PNG.
@@ -110,6 +114,23 @@ PNG HexTree::Render(bool fulldepth, unsigned int maxlevel) const
 void HexTree::Prune(double tolerance)
 {
     // ADD YOUR IMPLEMENTATION BELOW
+
+    //create a empty stack of prunable subtrees;
+    std::stack<Node*> st;
+
+    //call getPrunableSubtrees();
+    getPrunableSubtrees(root, tolerance, &st);
+
+    //pop the stack and clear each prunable subtree
+    Node* temp;
+    while (st.empty()) {
+        temp = st.top();
+        st.pop();
+
+        Clear(temp);
+
+    }  
+
 }
 
 /**
@@ -578,4 +599,89 @@ void HexTree::Clear(Node *nd)
 bool HexTree::isLeafNode(const Node *nd) const
 {
     return (nd->A == nullptr && nd->B == nullptr && nd->C == nullptr && nd->D == nullptr && nd->E == nullptr && nd->F == nullptr);
+}
+
+/**
+ * Recursive helper for Prune. Pushes highest prunable subtrees of nd to the stack                                                                               
+ * @pre An unpruned subtree
+ * @param nd the root node of a subtree
+ * @param tolerance the tolerance for whether or not to prune the subtree.
+ * @return -1 if subtree doesn't exist, 0 if subtree is not prunable, and 1 if subtree is prunable                                                        e
+ */
+int getPrunableSubtrees(Node* nd, double tolerance, std::stack<Node*>* st) const
+{
+    //prunable is a flag that checks whether or not every leaf of a subtree is within tolerance
+    int prunable = 1;
+
+    //numleaves is the sum of non null children
+    int numChild = 0;
+
+    //temp var for current nd's children prunable value
+    //case 1: childPrunable is 1, so child is prunable
+        //prunable remains positive
+        //numchild is incremented by 1
+    //case 2: childPrunable is 0, so child is not prunable
+        //prunable * 0 is 0, so current node is not prunable
+        //numChild in this case doesnt matter, so is unchanged
+    //case 3: childPrunableis -1, so child doesn't exist
+        //doesn' affect prunable, since a node can still be prunable with less nodes
+        //numChild is unchanged
+    Node* currChild;
+    int childPrunable;
+
+    //temp queue to iterate thru children
+    std::queue<Node*>* q;
+
+    //base case: nd is a leaf, so by default is prunable
+
+    if (isLeafNode(nd)) {
+        return 1;
+    }
+
+    //base case: nd does not exist.
+    if (nd == nullptr) {
+        return -1;
+    }
+
+    q->push(nd->A);
+    q->push(nd->B);
+    q->push(nd->C);
+    q->push(nd->D);
+    q->push(nd->E);
+    q->push(nd->F);
+
+    //otherwise, recursively check every subtree under nd. 
+
+    //case 1: childPrunable is 1, so child is prunable
+        //prunable remains positive
+        //numchild is incremented by 1
+    //case 2: childPrunable is 0, so child is not prunable
+        //prunable * 0 is 0, so current node is not prunable, and exit the loop
+        //numChild in this case doesnt matter, so is unchanged
+    //case 3: childPrunableis -1, so child doesn't exist
+        //doesn' affect prunable, since a node can still be prunable with less nodes
+        //numChild is unchanged
+    while  (!q->empty()) {
+        currChild = q->front();
+        q->pop();
+        childPrunable = getPrunableSubtrees(nd->A, tolerance, st);
+        if (childPrunable >= 1) {
+            numChild++;
+        } else if(childPrunable == 0) {
+            prunable = -1;
+            break;
+        } //else temp is 0 so numChild doesnt change and prunable doesnt change
+    }
+
+    //if prunable is positive, the new highest prunable subtree is nd
+    if (prunable >= 1) {
+        for (int temp = numChild; temp > 0; temp--) {
+            st->pop();
+        }
+        st->push(nd);
+    } 
+
+    //otherwise, the highest prunable subtrees are lower than this nd, and therefore are already in the stack
+
+    return prunable;
 }

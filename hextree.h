@@ -9,6 +9,8 @@
 #ifndef _HEXTREE_H_
 #define _HEXTREE_H_
 
+#include <stack>
+#include <queue>
 #include <utility>
 #include "cs221util/PNG.h"
 #include "cs221util/RGBAPixel.h"
@@ -20,7 +22,15 @@ using namespace cs221util;
  * Like we had for PA1, the Node class *should be* private to the tree
  * class via the principle of encapsulation -- the end user does not
  * need to know our node-based implementation details.
- * Given for PA3, and made as a public class for convenience of testing and debugging.
+ * Given for                                                                                                                             ccv                                             
+ * 
+ * 
+ * 
+ * 
+ 
+ 
+ 
+  PA3, and made as a public class for convenience of testing and debugging.
  */
 class Node {
 public:

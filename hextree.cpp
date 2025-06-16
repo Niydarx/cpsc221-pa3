@@ -116,6 +116,7 @@ void HexTree::Prune(double tolerance)
 {
     // ADD YOUR IMPLEMENTATION BELOW
 
+/*
     //create a empty stack of prunable subtrees;
     std::stack<Node*> st;
 
@@ -131,6 +132,9 @@ void HexTree::Prune(double tolerance)
         Clear(temp);
 
     }  
+    */
+
+   pruneNode(root, tolerance);
 
 }
 
@@ -609,6 +613,8 @@ bool HexTree::isLeafNode(const Node *nd) const
  * @param tolerance the tolerance for whether or not to prune the subtree.
  * @return -1 if subtree doesn't exist, 0 if subtree is not prunable, and 1 if subtree is prunable                                                        e
  */
+
+/*
 int getPrunableSubtrees(Node* nd, double tolerance, std::stack<Node*>* st) const
 {
     //prunable is a flag that checks whether or not every leaf of a subtree is within tolerance
@@ -684,7 +690,59 @@ int getPrunableSubtrees(Node* nd, double tolerance, std::stack<Node*>* st) const
         st->push(nd);
     } 
 
-    //if prunable is negative, the block is also not going to be prunable
+    //if prunable is negative, the block is not going to be prunable, and the parent of this is definitely not gonna be prunable
 
     return prunable;
 }
+*/
+
+void pruneNode(Node* nd, double tolerance) const
+{
+    //base case: nd is null
+    if (nd == nullptr) {
+        return;
+    }
+
+    //base case: nd is leaf node, so the avg colour is within tolerance trivially
+    if (isLeafNode(nd)) {
+        Clear(nd);
+    }
+
+    //check whether all pixels in the current node are within tolerance
+    if (isLeavesWithinTolerance(nd, tolerance, nd->avg)) {
+        Clear(nd);
+    } else {
+        pruneNode(nd->A, tolerance);
+        pruneNode(nd->B, tolerance);
+        pruneNode(nd->C, tolerance);
+        pruneNode(nd->D, tolerance);
+        pruneNode(nd->E, tolerance);
+        pruneNode(nd->F, tolerance);
+    }
+    
+}
+
+bool isLeavesWithinTolerance(Node* nd, double tolerance, RGBAPixel& avg) {
+    
+    //base case: nd is null, so is trivially in tolerance
+    if (nd == nullptr) {
+        return true;
+    }
+
+    //base case: at a leaf node, so check whether avg is within tolerance
+    if (isLeafNode(nd)) {
+        return nd->avg.distanceTo(avg) <= tolerance;
+    }
+
+    
+
+    //otherwise, recursively travel down
+
+    return isLeavesWithinTolerance(nd->A, tolerance, avg) 
+            && isLeavesWithinTolerance(nd->B, tolerance, avg) 
+            && isLeavesWithinTolerance(nd->C, tolerance, avg) 
+            && isLeavesWithinTolerance(nd->D, tolerance, avg) 
+            && isLeavesWithinTolerance(nd->E, tolerance, avg) 
+            && isLeavesWithinTolerance(nd->F, tolerance, avg);
+}
+

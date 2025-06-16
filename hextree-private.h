@@ -61,11 +61,24 @@ RGBSum pixelToSum(const RGBAPixel p);
 
 RGBAPixel averageFromChildren(Node *A, Node *B, Node *C, Node *D, Node *E, Node *F, pair<unsigned int, unsigned int> ul, pair<unsigned int, unsigned int> lr);
 
+
 /**
  * Recursive helper for Prune. Pushes highest prunable subtrees of nd to the stack                                                                               
  * @pre An unpruned subtree
  * @param nd the root node of a subtree
- * @param tolerance the tolerance for whether or not to prune the subtree.
- * @return -1 if subtree doesn't exist, 0 if subtree is not prunable, and 1 if subtree is prunable                                                        e
+ * @param tolerance the tolerance for whether or not to prune the subtree.                                                   e
  */
+/*
 int getPrunableSubtrees(Node* nd, double tolerance, std::stack<Node*>* st) const;
+*/
+
+void pruneNode(Node* nd, double tolerance) const;
+
+/**
+ * Recursive helper for pruneNode. Determines if the leaves of a given node are within tolerance to an avg pixel.
+ * @param nd the root node of a subtree
+ * @param tolerance the tolerance
+ * @param avg the avg pixel we are comparing.
+ */
+
+bool isLeavesWithinTolerance(Node* nd, double tolerance, RGBAPixel& avg) const;

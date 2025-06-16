@@ -9,7 +9,7 @@
 #include "hextree.h"
 #include <queue>
 #include <stack>
-#include "hextree-private.h"
+
 
 
 
@@ -114,28 +114,7 @@ PNG HexTree::Render(bool fulldepth, unsigned int maxlevel) const
  */
 void HexTree::Prune(double tolerance)
 {
-    // ADD YOUR IMPLEMENTATION BELOW
-
-/*
-    //create a empty stack of prunable subtrees;
-    std::stack<Node*> st;
-
-    //call getPrunableSubtrees();
-    getPrunableSubtrees(root, tolerance, &st);
-
-    //pop the stack and clear each prunable subtree
-    Node* temp;
-    while (st.empty()) {
-        temp = st.top();
-        st.pop();
-
-        Clear(temp);
-
-    }  
-    */
-
    pruneNode(root, tolerance);
-
 }
 
 /**
@@ -161,6 +140,8 @@ void HexTree::FlipHorizontal()
 void HexTree::Clear()
 {
     Clear(root);
+
+    root = nullptr;
 }
 
 /**
@@ -511,8 +492,9 @@ void HexTree::Render(PNG &img, const Node *nd, bool fulldepth, unsigned int maxl
     }
 }
 
-void HexTree::Clear(Node *nd)
+void HexTree::Clear(Node*& nd)
 {
+    /*
     if (nd != nullptr)
     {
         if (isLeafNode(nd))
@@ -599,6 +581,25 @@ void HexTree::Clear(Node *nd)
             nd = nullptr;
         }
     }
+    */
+
+   //base case: node is null
+
+    if (nd == nullptr) {
+        return;
+    } 
+
+    //recursive call: delete all the subtrees below this node first.
+    Clear(nd->A);
+    Clear(nd->B);
+    Clear(nd->C);
+    Clear(nd->D);
+    Clear(nd->E);
+    Clear(nd->F);
+
+    //work on current recursion level: delete the current node
+    delete nd;
+    nd = nullptr;
 }
 
 bool HexTree::isLeafNode(const Node *nd) const
@@ -696,33 +697,36 @@ int getPrunableSubtrees(Node* nd, double tolerance, std::stack<Node*>* st) const
 }
 */
 
-void pruneNode(Node* nd, double tolerance) const
+void HexTree::pruneNode(Node*& nd, double tolerance)
 {
     //base case: nd is null
     if (nd == nullptr) {
         return;
     }
 
-    //base case: nd is leaf node, so the avg colour is within tolerance trivially
-    if (isLeafNode(nd)) {
-        Clear(nd);
+      // First check if we should prune this entire subtree
+    if (shouldPrune(nd, tolerance, nd->avg)) {
+        Clear(nd->A);  // Recursively deletes all children
+        Clear(nd->B);
+        Clear(nd->C);
+        Clear(nd->D);
+        Clear(nd->E);
+        Clear(nd->F);
+        return;
     }
 
-    //check whether all pixels in the current node are within tolerance
-    if (isLeavesWithinTolerance(nd, tolerance, nd->avg)) {
-        Clear(nd);
-    } else {
-        pruneNode(nd->A, tolerance);
-        pruneNode(nd->B, tolerance);
-        pruneNode(nd->C, tolerance);
-        pruneNode(nd->D, tolerance);
-        pruneNode(nd->E, tolerance);
-        pruneNode(nd->F, tolerance);
-    }
+    pruneNode(nd->A, tolerance);
+    pruneNode(nd->B, tolerance);
+    pruneNode(nd->C, tolerance);
+    pruneNode(nd->D, tolerance);
+    pruneNode(nd->E, tolerance);
+    pruneNode(nd->F, tolerance);
+
+
     
 }
 
-bool isLeavesWithinTolerance(Node* nd, double tolerance, RGBAPixel& avg) {
+bool HexTree::shouldPrune(Node* nd, double tolerance, RGBAPixel& avg) const {
     
     //base case: nd is null, so is trivially in tolerance
     if (nd == nullptr) {
@@ -733,16 +737,14 @@ bool isLeavesWithinTolerance(Node* nd, double tolerance, RGBAPixel& avg) {
     if (isLeafNode(nd)) {
         return nd->avg.distanceTo(avg) <= tolerance;
     }
-
     
-
     //otherwise, recursively travel down
 
-    return isLeavesWithinTolerance(nd->A, tolerance, avg) 
-            && isLeavesWithinTolerance(nd->B, tolerance, avg) 
-            && isLeavesWithinTolerance(nd->C, tolerance, avg) 
-            && isLeavesWithinTolerance(nd->D, tolerance, avg) 
-            && isLeavesWithinTolerance(nd->E, tolerance, avg) 
-            && isLeavesWithinTolerance(nd->F, tolerance, avg);
+    return shouldPrune(nd->A, tolerance, avg) 
+            && shouldPrune(nd->B, tolerance, avg) 
+            && shouldPrune(nd->C, tolerance, avg) 
+            && shouldPrune(nd->D, tolerance, avg) 
+            && shouldPrune(nd->E, tolerance, avg) 
+            && shouldPrune(nd->F, tolerance, avg);
 }
 

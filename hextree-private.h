@@ -24,7 +24,7 @@ void Render(PNG &img, const Node *nd, bool fulldepth, unsigned int maxlevel) con
 bool isLeafNode(const Node *nd) const;
 
 // Recursive helper for Clear()
-void Clear(Node *nd);
+void Clear(Node*& nd);
 
 struct RGBSum
 {
@@ -72,13 +72,6 @@ RGBAPixel averageFromChildren(Node *A, Node *B, Node *C, Node *D, Node *E, Node 
 int getPrunableSubtrees(Node* nd, double tolerance, std::stack<Node*>* st) const;
 */
 
-void pruneNode(Node* nd, double tolerance) const;
+void pruneNode(Node*& nd, double tolerance);
 
-/**
- * Recursive helper for pruneNode. Determines if the leaves of a given node are within tolerance to an avg pixel.
- * @param nd the root node of a subtree
- * @param tolerance the tolerance
- * @param avg the avg pixel we are comparing.
- */
-
-bool isLeavesWithinTolerance(Node* nd, double tolerance, RGBAPixel& avg) const;
+bool shouldPrune(Node* nd, double tolerance, RGBAPixel& avg) const;

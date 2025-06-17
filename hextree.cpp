@@ -10,9 +10,6 @@
 #include <queue>
 #include <stack>
 
-
-
-
 /**
  * Constructor that builds a HexTree out of the given PNG.
  * Every leaf in the tree corresponds to a pixel in the PNG.
@@ -114,7 +111,7 @@ PNG HexTree::Render(bool fulldepth, unsigned int maxlevel) const
  */
 void HexTree::Prune(double tolerance)
 {
-   pruneNode(root, tolerance);
+    pruneNode(root, tolerance);
 }
 
 /**
@@ -492,7 +489,7 @@ void HexTree::Render(PNG &img, const Node *nd, bool fulldepth, unsigned int maxl
     }
 }
 
-void HexTree::Clear(Node*& nd)
+void HexTree::Clear(Node *&nd)
 {
     /*
     if (nd != nullptr)
@@ -583,13 +580,14 @@ void HexTree::Clear(Node*& nd)
     }
     */
 
-   //base case: node is null
+    // base case: node is null
 
-    if (nd == nullptr) {
+    if (nd == nullptr)
+    {
         return;
-    } 
+    }
 
-    //recursive call: delete all the subtrees below this node first.
+    // recursive call: delete all the subtrees below this node first.
     Clear(nd->A);
     Clear(nd->B);
     Clear(nd->C);
@@ -597,7 +595,7 @@ void HexTree::Clear(Node*& nd)
     Clear(nd->E);
     Clear(nd->F);
 
-    //work on current recursion level: delete the current node
+    // work on current recursion level: delete the current node
     delete nd;
     nd = nullptr;
 }
@@ -608,7 +606,7 @@ bool HexTree::isLeafNode(const Node *nd) const
 }
 
 /**
- * Recursive helper for Prune. Pushes highest prunable subtrees of nd to the stack                                                                               
+ * Recursive helper for Prune. Pushes highest prunable subtrees of nd to the stack
  * @pre An unpruned subtree
  * @param nd the root node of a subtree
  * @param tolerance the tolerance for whether or not to prune the subtree.
@@ -659,7 +657,7 @@ int getPrunableSubtrees(Node* nd, double tolerance, std::stack<Node*>* st) const
     q->push(nd->E);
     q->push(nd->F);
 
-    //otherwise, recursively check every subtree under nd. 
+    //otherwise, recursively check every subtree under nd.
 
     //case 1: childPrunable is 1, so child is prunable
         //prunable remains positive
@@ -689,7 +687,7 @@ int getPrunableSubtrees(Node* nd, double tolerance, std::stack<Node*>* st) const
             st->pop();
         }
         st->push(nd);
-    } 
+    }
 
     //if prunable is negative, the block is not going to be prunable, and the parent of this is definitely not gonna be prunable
 
@@ -697,16 +695,18 @@ int getPrunableSubtrees(Node* nd, double tolerance, std::stack<Node*>* st) const
 }
 */
 
-void HexTree::pruneNode(Node*& nd, double tolerance)
+void HexTree::pruneNode(Node *&nd, double tolerance)
 {
-    //base case: nd is null
-    if (nd == nullptr) {
+    // base case: nd is null
+    if (nd == nullptr)
+    {
         return;
     }
 
-      // First check if we should prune this entire subtree
-    if (shouldPrune(nd, tolerance, nd->avg)) {
-        Clear(nd->A);  // Recursively deletes all children
+    // First check if we should prune this entire subtree
+    if (shouldPrune(nd, tolerance, nd->avg))
+    {
+        Clear(nd->A); // Recursively deletes all children
         Clear(nd->B);
         Clear(nd->C);
         Clear(nd->D);
@@ -721,30 +721,24 @@ void HexTree::pruneNode(Node*& nd, double tolerance)
     pruneNode(nd->D, tolerance);
     pruneNode(nd->E, tolerance);
     pruneNode(nd->F, tolerance);
-
-
-    
 }
 
-bool HexTree::shouldPrune(Node* nd, double tolerance, RGBAPixel& avg) const {
-    
-    //base case: nd is null, so is trivially in tolerance
-    if (nd == nullptr) {
+bool HexTree::shouldPrune(Node *nd, double tolerance, RGBAPixel &avg) const
+{
+
+    // base case: nd is null, so is trivially in tolerance
+    if (nd == nullptr)
+    {
         return true;
     }
 
-    //base case: at a leaf node, so check whether avg is within tolerance
-    if (isLeafNode(nd)) {
+    // base case: at a leaf node, so check whether avg is within tolerance
+    if (isLeafNode(nd))
+    {
         return nd->avg.distanceTo(avg) <= tolerance;
     }
-    
-    //otherwise, recursively travel down
 
-    return shouldPrune(nd->A, tolerance, avg) 
-            && shouldPrune(nd->B, tolerance, avg) 
-            && shouldPrune(nd->C, tolerance, avg) 
-            && shouldPrune(nd->D, tolerance, avg) 
-            && shouldPrune(nd->E, tolerance, avg) 
-            && shouldPrune(nd->F, tolerance, avg);
+    // otherwise, recursively travel down
+
+    return shouldPrune(nd->A, tolerance, avg) && shouldPrune(nd->B, tolerance, avg) && shouldPrune(nd->C, tolerance, avg) && shouldPrune(nd->D, tolerance, avg) && shouldPrune(nd->E, tolerance, avg) && shouldPrune(nd->F, tolerance, avg);
 }
-

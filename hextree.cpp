@@ -130,6 +130,7 @@ void HexTree::Prune(double tolerance)
 void HexTree::FlipHorizontal()
 {
     // ADD YOUR IMPLEMENTATION BELOW
+    flipHorizontalHelper(root);
 }
 
 /**
@@ -746,5 +747,61 @@ bool HexTree::shouldPrune(Node* nd, double tolerance, RGBAPixel& avg) const {
             && shouldPrune(nd->D, tolerance, avg) 
             && shouldPrune(nd->E, tolerance, avg) 
             && shouldPrune(nd->F, tolerance, avg);
+}
+
+/**
+ * Recursive helper for flipHorizontal
+ * flips the pointers of the left and right child nodes, and swaps the upper left and lower right fields.
+ */
+void HexTree::flipHorizontalHelper(Node*& nd) {
+    //base case: node is null
+    if (nd == nullptr) {
+        return;
+    }
+
+    //work on current recursive level - swap pointers and pair data
+
+    Node* temp = nd->A;
+
+    nd->A = nd->C;
+    nd->C = temp;
+
+    temp = nd->D;
+    nd->D = nd->F;
+    nd->F = temp;
+
+    pair<unsigned int, unsigned int> tempUL;
+    pair<unsigned int, unsigned int> tempLR;
+
+/*
+    if(nd->A != nullptr && nd->C != nullptr) {
+        tempUL = nd->A->upLeft; 
+        tempLR = nd->A->lowRight;
+
+        nd->A->upLeft = nd->C->upLeft; 
+        nd->A->lowRight = nd->C->lowRight;
+
+        nd->C->upLeft = tempUL;
+        nd->C->lowRight = tempLR;
+    }
+
+    if(nd->D != nullptr && nd->F != nullptr) {
+        tempUL = nd->D->upLeft; 
+        tempLR = nd->D->lowRight;
+
+        nd->D->upLeft = nd->F->upLeft; 
+        nd->D->lowRight = nd->F->lowRight;
+
+        nd->F->upLeft = tempUL;
+        nd->F->lowRight = tempLR;
+    }
+    */
+
+    flipHorizontalHelper(nd->A);
+    flipHorizontalHelper(nd->B);
+    flipHorizontalHelper(nd->C);
+    flipHorizontalHelper(nd->A);
+    flipHorizontalHelper(nd->D);
+    flipHorizontalHelper(nd->E);
 }
 

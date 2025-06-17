@@ -75,3 +75,5 @@ int getPrunableSubtrees(Node* nd, double tolerance, std::stack<Node*>* st) const
 void pruneNode(Node*& nd, double tolerance);
 
 bool shouldPrune(Node* nd, double tolerance, RGBAPixel& avg) const;
+
+void flipHorizontalHelper(Node*& nd);

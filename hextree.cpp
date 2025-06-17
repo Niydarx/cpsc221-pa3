@@ -74,6 +74,10 @@ HexTree::HexTree(const PNG &imIn)
 HexTree &HexTree::operator=(const HexTree &rhs)
 {
     // Replace the line below with your implementation
+    if (this != &rhs) {
+        Clear(); // you will implement clear
+        Copy(rhs); // and copy
+    }
     return *this;
 }
 

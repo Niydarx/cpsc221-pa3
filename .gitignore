@@ -11,7 +11,7 @@
 # ----------------------------------------------------
 
 # Ignore images-output dir
-# /images-output/*
+ /images-output/*
 
 # ZIP
 *.zip

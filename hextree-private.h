@@ -74,6 +74,17 @@ int getPrunableSubtrees(Node* nd, double tolerance, std::stack<Node*>* st) const
 
 void pruneNode(Node*& nd, double tolerance);
 
+/**
+ * Recursive helper for pruneNode. Returns whether or not all leaves in the subtree are within tolerance to the avg pixel
+ */
 bool shouldPrune(Node* nd, double tolerance, RGBAPixel& avg) const;
 
+/**
+ * Recursive helper for flipHorizontal. Flips the current node into the correct spot relative to to the entire image
+ */
 void flipHorizontalHelper(Node*& nd, int globalChange);
+
+/**
+ * Recursive helper for copy. Copies the current node and attaches it to the given insertion point
+ */
+void copyHelper(Node* nd, Node*& insert);

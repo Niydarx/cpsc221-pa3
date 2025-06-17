@@ -151,6 +151,7 @@ void HexTree::Clear()
 void HexTree::Copy(const HexTree &other)
 {
     // ADD YOUR IMPLEMENTATION BELOW
+    copyHelper((other.root), root);
 }
 
 /**
@@ -829,3 +830,29 @@ void HexTree::flipHorizontalHelper(Node*& nd, int globalChange) {
     flipHorizontalHelper(nd->F, globalChange + localChangeD);
 }
 
+/**
+ * Recursive helper for copy. Copies the current node and attaches it to the given insertion point
+ */
+void HexTree::copyHelper(Node* nd, Node*& insert) {
+
+    //base case: nd is null, so do nothing
+    if (nd == nullptr) {
+        return;
+    }
+    //work at current recursion level: 
+    //create a new node pointer
+    //init values to the current node
+    //set the insertion point to the copy
+    Node* copy = new Node(nd->upLeft, nd->lowRight, nd->avg);
+    insert = copy;
+
+    //recursively call copyHelper on nd's children and set the insert point to the copy node's children
+    copyHelper(nd->A, insert->A);
+    copyHelper(nd->B, insert->B);
+    copyHelper(nd->C, insert->C);
+    copyHelper(nd->D, insert->D);
+    copyHelper(nd->E, insert->E);
+    copyHelper(nd->F, insert->F);
+
+
+}

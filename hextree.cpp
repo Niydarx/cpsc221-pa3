@@ -127,7 +127,7 @@ void HexTree::Prune(double tolerance)
 void HexTree::FlipHorizontal()
 {
     // ADD YOUR IMPLEMENTATION BELOW
-    flipHorizontalHelper(root);
+    flipHorizontalHelper(root, 0);
 }
 
 /**
@@ -748,13 +748,68 @@ bool HexTree::shouldPrune(Node *nd, double tolerance, RGBAPixel &avg) const
  * Recursive helper for flipHorizontal
  * flips the pointers of the left and right child nodes, and swaps the upper left and lower right fields.
  */
-void HexTree::flipHorizontalHelper(Node*& nd) {
+void HexTree::flipHorizontalHelper(Node*& nd, int globalChange) {
     //base case: node is null
     if (nd == nullptr) {
         return;
     }
 
-    //work on current recursive level - swap pointers and pair data
+
+    //work on current recursive level
+
+    //apply global change to current nd data
+    nd->lowRight.first = nd->lowRight.first + globalChange;
+    nd->upLeft.first = nd->upLeft.first + globalChange;
+
+    //calculate relative widths of node's children
+    int upLeftWidth = 0;
+    int upMidWidth = 0;
+    int upRightWidth = 0;
+
+    int downLeftWidth = 0;
+    int downMidWidth = 0;
+    int downRightWidth = 0;
+
+    //local change of coordinates within for children.
+    int localChangeA = 0;
+    int localChangeB = 0;
+    int localChangeC = 0;
+    int localChangeD = 0;
+    int localChangeE = 0;
+    int localChangeF = 0;
+
+
+    //if nd child isn't null, calculate the relative width of the child. If it is null, the relative width is 0
+    if (nd->A != nullptr) {
+        upLeftWidth = nd->A->lowRight.first - nd->A->upLeft.first + 1;
+    }
+    if (nd->C != nullptr) {
+        upRightWidth = nd->C->lowRight.first - nd->C->upLeft.first + 1;
+    }
+    if ( nd->B != nullptr) {
+        upMidWidth = nd->B->lowRight.first - nd->B->upLeft.first + 1;
+    }
+    if (nd->D != nullptr) {
+        downLeftWidth = nd->D->lowRight.first - nd->D->upLeft.first + 1;
+    }
+    if (nd->F != nullptr) {
+        downRightWidth = nd->F->lowRight.first - nd->F->upLeft.first + 1;
+    }
+    if ( nd->E != nullptr) {
+        downMidWidth = nd->E->lowRight.first - nd->E->upLeft.first + 1;
+    }
+
+    //calculate the local change for each nd. 
+    //middle nodes dont have a local change.
+
+    localChangeA = upMidWidth + upRightWidth;
+    localChangeC = -(upMidWidth + upLeftWidth);
+
+    localChangeD = downMidWidth + downRightWidth;
+    localChangeF = -(downMidWidth + downLeftWidth);
+
+
+    // - swap pointers and pair data
 
     Node* temp = nd->A;
 
@@ -765,38 +820,12 @@ void HexTree::flipHorizontalHelper(Node*& nd) {
     nd->D = nd->F;
     nd->F = temp;
 
-    pair<unsigned int, unsigned int> tempUL;
-    pair<unsigned int, unsigned int> tempLR;
 
-/*
-    if(nd->A != nullptr && nd->C != nullptr) {
-        tempUL = nd->A->upLeft; 
-        tempLR = nd->A->lowRight;
-
-        nd->A->upLeft = nd->C->upLeft; 
-        nd->A->lowRight = nd->C->lowRight;
-
-        nd->C->upLeft = tempUL;
-        nd->C->lowRight = tempLR;
-    }
-
-    if(nd->D != nullptr && nd->F != nullptr) {
-        tempUL = nd->D->upLeft; 
-        tempLR = nd->D->lowRight;
-
-        nd->D->upLeft = nd->F->upLeft; 
-        nd->D->lowRight = nd->F->lowRight;
-
-        nd->F->upLeft = tempUL;
-        nd->F->lowRight = tempLR;
-    }
-    */
-
-    flipHorizontalHelper(nd->A);
-    flipHorizontalHelper(nd->B);
-    flipHorizontalHelper(nd->C);
-    flipHorizontalHelper(nd->A);
-    flipHorizontalHelper(nd->D);
-    flipHorizontalHelper(nd->E);
+    flipHorizontalHelper(nd->A, globalChange + localChangeC);
+    flipHorizontalHelper(nd->B, globalChange);
+    flipHorizontalHelper(nd->C, globalChange + localChangeA);
+    flipHorizontalHelper(nd->D, globalChange + localChangeF);
+    flipHorizontalHelper(nd->E, globalChange);
+    flipHorizontalHelper(nd->F, globalChange + localChangeD);
 }
 

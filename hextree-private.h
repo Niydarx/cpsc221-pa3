@@ -76,4 +76,4 @@ void pruneNode(Node*& nd, double tolerance);
 
 bool shouldPrune(Node* nd, double tolerance, RGBAPixel& avg) const;
 
-void flipHorizontalHelper(Node*& nd);
+void flipHorizontalHelper(Node*& nd, int globalChange);
